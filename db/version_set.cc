@@ -1386,6 +1386,10 @@ void VersionSet::SetupOtherInputs(Compaction* c) {
   const int level = c->level();
   InternalKey smallest, largest;
 
+  // 查找current_->files_[level]中的一些文件添加到c->inputs_[0]中，这些文件需要满足以下条件：
+  // 1. 最小key的user_key等于c->inputs_[0]的最大key的user_key
+  // 2. 最小key需小于c->inputs_[0]的最大key
+  // 不断查找current_->files_[level]中的文件，直到没有文件能添加到c->inputs_[0]中
   AddBoundaryInputs(icmp_, current_->files_[level], &c->inputs_[0]);
   GetRange(c->inputs_[0], &smallest, &largest);
 
