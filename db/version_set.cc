@@ -1410,6 +1410,7 @@ void VersionSet::SetupOtherInputs(Compaction* c) {
     const int64_t inputs0_size = TotalFileSize(c->inputs_[0]);
     const int64_t inputs1_size = TotalFileSize(c->inputs_[1]);
     const int64_t expanded0_size = TotalFileSize(expanded0);
+    // 如果level级别文件数量增加
     if (expanded0.size() > c->inputs_[0].size() &&
         inputs1_size + expanded0_size <
             ExpandedCompactionByteSizeLimit(options_)) {
@@ -1419,6 +1420,7 @@ void VersionSet::SetupOtherInputs(Compaction* c) {
       current_->GetOverlappingInputs(level + 1, &new_start, &new_limit,
                                      &expanded1);
       AddBoundaryInputs(icmp_, current_->files_[level + 1], &expanded1);
+      // 如果level+1级别文件数量不会增加
       if (expanded1.size() == c->inputs_[1].size()) {
         Log(options_->info_log,
             "Expanding@%d %d+%d (%ld+%ld bytes) to %d+%d (%ld+%ld bytes)\n",
@@ -1427,6 +1429,7 @@ void VersionSet::SetupOtherInputs(Compaction* c) {
             int(expanded1.size()), long(expanded0_size), long(inputs1_size));
         smallest = new_start;
         largest = new_limit;
+        // 更新level和level+1级别的inputs
         c->inputs_[0] = expanded0;
         c->inputs_[1] = expanded1;
         GetRange2(c->inputs_[0], c->inputs_[1], &all_start, &all_limit);
